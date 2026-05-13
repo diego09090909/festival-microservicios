@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class ProgramacionDTO {
+public class ProgramacionPedidoDTO {
 
     @NotNull(message = "El ID del artista es obligatorio")
     private Long artistaId;

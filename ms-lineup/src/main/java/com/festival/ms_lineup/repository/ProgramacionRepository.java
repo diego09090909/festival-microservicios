@@ -12,18 +12,13 @@ import java.util.List;
 @Repository
 public interface ProgramacionRepository extends JpaRepository<ProgramacionArtista, Long> {
 
-    // Obtener toda la programación de un evento
     List<ProgramacionArtista> encontrarIdEvento(Long eventoId);
 
-    // Obtener programación de un artista específico
     List<ProgramacionArtista> encontrarIdArtista(Long artistaId);
 
-    // Obtener programación por escenario y evento
     List<ProgramacionArtista> encontrarNombreEscenarioEIdEvento(
         String nombreEscenario, Long eventoId);
 
-    // Verificar conflicto de horario en un escenario
-    // Regla: no pueden haber dos artistas en el mismo escenario al mismo tiempo
     @Query("SELECT COUNT(p) > 0 FROM ProgramacionArtista p " +
         "WHERE p.nombreEscenario = :escenario " +
         "AND p.eventoId = :eventoId " +
@@ -37,6 +32,5 @@ public interface ProgramacionRepository extends JpaRepository<ProgramacionArtist
         @Param("horaFin") LocalDateTime horaFin
     );
 
-    // Obtener programación por estado
     List<ProgramacionArtista> encontrarPorEstado(EstadoProgramacion estado);
 }

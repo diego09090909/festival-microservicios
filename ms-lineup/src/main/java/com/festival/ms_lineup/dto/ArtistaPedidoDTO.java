@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class ArtistaDTO {
+public class ArtistaPedidoDTO {
 
     @NotBlank(message = "El nombre del artista es obligatorio")
     private String nombre;

@@ -19,12 +19,10 @@ public class ProgramacionArtista {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relación real dentro de la misma BD
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "artista_id", nullable = false)
     private Artista artista;
 
-    // ID lógico - viene de MS-Eventos (otra BD)
     @Column(name = "evento_id", nullable = false)
     private Long eventoId;
 

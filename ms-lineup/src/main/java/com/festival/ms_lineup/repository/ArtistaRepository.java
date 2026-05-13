@@ -9,12 +9,9 @@ import java.util.List;
 @Repository
 public interface ArtistaRepository extends JpaRepository<Artista, Long> {
 
-    // Buscar artistas por estado
     List<Artista> encontrarPorEstado(EstadoArtista estado);
 
-    // Verificar si existe un artista con ese nombre
     boolean NombreExistente(String nombre);
 
-    // Buscar por género musical
     List<Artista> EncontrarPorGeneroMusical(String generoMusical);
 }
