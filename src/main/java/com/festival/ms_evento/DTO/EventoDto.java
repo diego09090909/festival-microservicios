@@ -2,39 +2,39 @@ package com.festival.ms_evento.DTO;
 
 import com.festival.ms_evento.model.EstadoEvento;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class EventoDto {
 
+    private Long id;
+
     @NotBlank(message = "El nombre del evento es obligatorio")
+    @Size(max = 150, message = "El nombre no puede superar 150 caracteres")
     private String nombre;
 
-    @NotBlank(message = "La descripción es obligatoria")
+    @Size(max = 500, message = "La descripcion no puede superar 500 caracteres")
     private String descripcion;
 
-    @NotNull(message = "La fecha del evento es obligatoria")
-    private LocalDate fecha;
-
-    @NotNull(message = "La hora del evento es obligatoria")
-    private LocalTime hora;
-
-    @NotBlank(message = "La ubicación es obligatoria")
+    @NotBlank(message = "La ubicacion es obligatoria")
     private String ubicacion;
 
-    @Min(value = 1, message = "La capacidad debe ser mayor a 0")
-    private Integer capacidad;
+    @NotNull(message = "La fecha de inicio es obligatoria")
+    private LocalDate fechaInicio;
 
-    @PositiveOrZero(message = "El precio no puede ser negativo")
-    private Double precioEntrada;
+    @NotNull(message = "La fecha de fin es obligatoria")
+    private LocalDate fechaFin;
 
-    @NotNull(message = "El estado del evento es obligatorio")
+    @NotNull(message = "El aforo maximo es obligatorio")
+    @Min(value = 1, message = "El aforo debe ser al menos 1 persona")
+    @Max(value = 500000, message = "El aforo no puede superar 500000")
+    private Integer aforoMaximo;
+
+
     private EstadoEvento estado;
+
+    private LocalDateTime creadoEn;
 }

@@ -1,48 +1,49 @@
 package com.festival.ms_evento.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "eventos")
+@Table(name = "evento")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class Evento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @Column(nullable = false, length = 150)
     private String nombre;
 
+    @Column(length = 500)
     private String descripcion;
 
-    @NotNull
-    private LocalDate fecha;
-
-    @NotNull
-    private LocalTime hora;
-
-    @NotBlank
+    @Column(nullable = false, length = 200)
     private String ubicacion;
 
-    @Min(1)
-    private Integer capacidad;
-
-    @PositiveOrZero
-    private Double precioEntrada;
-
-    @Enumerated(EnumType.STRING)
-    private EstadoEvento estado;
+    @Column(nullable = false)
+    private LocalDate fechaInicio;
 
     @Column(nullable = false)
-    private Boolean activo;
+    private LocalDate fechaFin;
+
+    // Aforo maximo: regla de negocio critica para MS-Tickets
+    @Column(nullable = false)
+    private Integer aforoMaximo;
+
+    // Estado actual del evento (maquina de estados)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private EstadoEvento estado = EstadoEvento.BORRADOR;
+
+    // Fecha de creacion del registro
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime creadoEn = LocalDateTime.now();
 }
