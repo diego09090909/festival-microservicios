@@ -23,6 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);
     private final JwtUtil jwtUtil;
 
+    @SuppressWarnings("null")
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,

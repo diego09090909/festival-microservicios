@@ -1,5 +1,3 @@
-package com.festival.ms_lineup.service;
-
 package com.festival.ms_lineup.service.impl;
 
 import com.festival.ms_lineup.client.EventoClient;
@@ -8,19 +6,12 @@ import com.festival.ms_lineup.dto.EventoDTORespuesta;
 import com.festival.ms_lineup.dto.NotificacionPedidoDTO;
 import com.festival.ms_lineup.dto.ProgramacionDTORespuesta;
 import com.festival.ms_lineup.dto.ProgramacionPedidoDTO;
-import com.festival.ms_lineup.dto.request.NotificacionRequestDTO;
-import com.festival.ms_lineup.dto.request.ProgramacionRequestDTO;
-import com.festival.ms_lineup.dto.response.EventoResponseDTO;
-import com.festival.ms_lineup.dto.response.ProgramacionResponseDTO;
 import com.festival.ms_lineup.exception.ArtistaNoEncontrado;
-import com.festival.ms_lineup.exception.ArtistaNotFoundException;
 import com.festival.ms_lineup.exception.ConflictoHorario;
-import com.festival.ms_lineup.exception.ConflictoHorarioException;
 import com.festival.ms_lineup.exception.EventoNoDisponible;
-import com.festival.ms_lineup.exception.EventoNoDisponibleException;
 import com.festival.ms_lineup.exception.ProgramacionNoEncontrada;
-import com.festival.ms_lineup.exception.ProgramacionNotFoundException;
 import com.festival.ms_lineup.mapper.LineupMapper;
+import com.festival.ms_lineup.model.Artista;
 import com.festival.ms_lineup.model.EstadoProgramacion;
 import com.festival.ms_lineup.model.ProgramacionArtista;
 import com.festival.ms_lineup.repository.ArtistaRepository;
@@ -48,15 +39,13 @@ public class ProgramacionServiceImpl implements ProgramacionService {
     @Override
     public ProgramacionDTORespuesta programarArtista(ProgramacionPedidoDTO dto) {
 
-        // Regla 1: verificar que el artista existe y está activo
-        var artista = artistaRepository.findById(dto.getArtistaId())
+        Artista artista = artistaRepository.findById(dto.getArtistaId())
             .orElseThrow(() -> {
                 log.warn("Artista no encontrado - ID: {}", dto.getArtistaId());
                 return new ArtistaNoEncontrado(
                     "Artista no encontrado con ID: " + dto.getArtistaId());
             });
 
-        // Regla 2: verificar que el evento existe y está publicado
         EventoDTORespuesta evento = eventoClient.obtenerEvento(dto.getEventoId());
         if (!evento.getEstado().equals("PUBLICADO")) {
             log.warn("Evento no disponible - ID: {}", dto.getEventoId());
@@ -64,13 +53,12 @@ public class ProgramacionServiceImpl implements ProgramacionService {
                 "El evento no está disponible para programar artistas");
         }
 
-        // Regla 3: verificar que hora fin sea después de hora inicio
         if (!dto.getHoraFin().isAfter(dto.getHoraInicio())) {
             throw new ConflictoHorario(
                 "La hora de fin debe ser posterior a la hora de inicio");
         }
 
-        // Regla 4: verificar conflicto de horario en el escenario
+
         boolean hayConflicto = programacionRepository.existeConflictoHorario(
             dto.getNombreEscenario(),
             dto.getEventoId(),
@@ -84,9 +72,7 @@ public class ProgramacionServiceImpl implements ProgramacionService {
                 "Ya existe un artista programado en ese escenario en ese horario");
         }
 
-        // Crear programación
         ProgramacionArtista programacion = ProgramacionArtista.builder()
-            .artista(artista)
             .eventoId(dto.getEventoId())
             .nombreEscenario(dto.getNombreEscenario())
             .horaInicio(dto.getHoraInicio())
@@ -94,11 +80,13 @@ public class ProgramacionServiceImpl implements ProgramacionService {
             .estado(EstadoProgramacion.PROGRAMADO)
             .build();
 
-        programacionRepository.save(programacion);
+        programacion.setArtista(artista);
+
         log.info("Artista programado - artistaId: {} eventoId: {} escenario: {}",
             dto.getArtistaId(), dto.getEventoId(), dto.getNombreEscenario());
 
-        return lineupMapper.toProgramacionDTO(programacion);
+        return lineupMapper.toProgramacionDTO(
+            programacionRepository.save(programacion));
     }
 
     @Override
@@ -116,14 +104,14 @@ public class ProgramacionServiceImpl implements ProgramacionService {
     public List<ProgramacionDTORespuesta> obtenerPorEvento(Long eventoId) {
         log.info("Consultando lineup del evento: {}", eventoId);
         return lineupMapper.toProgramacionDTOList(
-            programacionRepository.encontrarIdEvento(eventoId));
+            programacionRepository.findByEventoId(eventoId));
     }
 
     @Override
     public List<ProgramacionDTORespuesta> obtenerPorArtista(Long artistaId) {
         log.info("Consultando programaciones del artista: {}", artistaId);
         return lineupMapper.toProgramacionDTOList(
-            programacionRepository.encontrarIdArtista(artistaId));
+            programacionRepository.findByArtistaId(artistaId));
     }
 
     @Override
@@ -141,7 +129,6 @@ public class ProgramacionServiceImpl implements ProgramacionService {
         programacionRepository.save(prog);
         log.info("Programación cancelada - ID: {}", id);
 
-        // Notificar cancelación de programación
         try {
             notificacionClient.enviarNotificacion(
                 NotificacionPedidoDTO.builder()
@@ -168,7 +155,6 @@ public class ProgramacionServiceImpl implements ProgramacionService {
             .orElseThrow(() -> new ProgramacionNoEncontrada(
                 "Programación no encontrada con ID: " + id));
 
-        // Verificar conflicto con el nuevo horario
         boolean hayConflicto = programacionRepository.existeConflictoHorario(
             dto.getNombreEscenario(),
             dto.getEventoId(),
@@ -186,7 +172,6 @@ public class ProgramacionServiceImpl implements ProgramacionService {
         programacionRepository.save(prog);
         log.info("Horario actualizado - ID: {}", id);
 
-        // Notificar cambio de horario
         try {
             notificacionClient.enviarNotificacion(
                 NotificacionPedidoDTO.builder()

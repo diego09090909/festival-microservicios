@@ -9,9 +9,9 @@ import java.util.List;
 @Repository
 public interface ArtistaRepository extends JpaRepository<Artista, Long> {
 
-    List<Artista> encontrarPorEstado(EstadoArtista estado);
+    List<Artista> findByEstado(EstadoArtista estado);
 
-    boolean NombreExistente(String nombre);
+    boolean existsByNombre(String nombre);
 
-    List<Artista> EncontrarPorGeneroMusical(String generoMusical);
+    List<Artista> findByGeneroMusical(String generoMusical);
 }

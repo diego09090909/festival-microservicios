@@ -1,7 +1,7 @@
 package com.festival.ms_lineup.repository;
 
-import com.festival.ms_lineup.model.ProgramacionArtista;
 import com.festival.ms_lineup.model.EstadoProgramacion;
+import com.festival.ms_lineup.model.ProgramacionArtista;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,11 +12,11 @@ import java.util.List;
 @Repository
 public interface ProgramacionRepository extends JpaRepository<ProgramacionArtista, Long> {
 
-    List<ProgramacionArtista> encontrarIdEvento(Long eventoId);
+    List<ProgramacionArtista> findByEventoId(Long eventoId);
 
-    List<ProgramacionArtista> encontrarIdArtista(Long artistaId);
+    List<ProgramacionArtista> findByArtistaId(Long artistaId);
 
-    List<ProgramacionArtista> encontrarNombreEscenarioEIdEvento(
+    List<ProgramacionArtista> findByNombreEscenarioAndEventoId(
         String nombreEscenario, Long eventoId);
 
     @Query("SELECT COUNT(p) > 0 FROM ProgramacionArtista p " +
@@ -32,5 +32,5 @@ public interface ProgramacionRepository extends JpaRepository<ProgramacionArtist
         @Param("horaFin") LocalDateTime horaFin
     );
 
-    List<ProgramacionArtista> encontrarPorEstado(EstadoProgramacion estado);
+    List<ProgramacionArtista> findByEstado(EstadoProgramacion estado);
 }
