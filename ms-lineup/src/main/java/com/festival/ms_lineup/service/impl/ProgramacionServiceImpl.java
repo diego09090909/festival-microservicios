@@ -47,10 +47,9 @@ public class ProgramacionServiceImpl implements ProgramacionService {
             });
 
         EventoDTORespuesta evento = eventoClient.obtenerEvento(dto.getEventoId());
-        if (!evento.getEstado().equals("PUBLICADO")) {
-            log.warn("Evento no disponible - ID: {}", dto.getEventoId());
-            throw new EventoNoDisponible(
-                "El evento no está disponible para programar artistas");
+            if (!evento.getEstado().equals("PUBLICADO")) {
+                log.warn("Evento no disponible - ID: {}", dto.getEventoId());
+                throw new EventoNoDisponible("El evento no está disponible para programar artistas");
         }
 
         if (!dto.getHoraFin().isAfter(dto.getHoraInicio())) {

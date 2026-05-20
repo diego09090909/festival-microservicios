@@ -25,6 +25,7 @@ public interface ProgramacionRepository extends JpaRepository<ProgramacionArtist
         "AND p.estado != 'CANCELADO' " +
         "AND p.horaInicio < :horaFin " +
         "AND p.horaFin > :horaInicio")
+        
     boolean existeConflictoHorario(
         @Param("escenario") String escenario,
         @Param("eventoId") Long eventoId,
