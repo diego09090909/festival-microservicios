@@ -1,5 +1,7 @@
 package com.festival.ms_usuario.service;
 
+import com.festival.ms_usuario.client.NotificacionClient;
+import com.festival.ms_usuario.dto.NotificacionDto;
 import com.festival.ms_usuario.dto.UsuarioDto;
 import com.festival.ms_usuario.mapper.UsuarioMapper;
 import com.festival.ms_usuario.model.Rol;
@@ -9,6 +11,7 @@ import com.festival.ms_usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,13 +25,15 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
-    private final UsuarioMapper usuarioMapper; // 
+    private final UsuarioMapper usuarioMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final NotificacionClient notificacionClient;
 
     public List<UsuarioDto> listarActivos() {
         log.info("Listando todos los usuarios activos");
         return usuarioRepository.findByActivoTrue()
                 .stream()
-                .map(usuarioMapper::toDTO) // 
+                .map(usuarioMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -39,7 +44,7 @@ public class UsuarioService {
                     log.warn("Usuario no encontrado con ID: {}", id);
                     return new RuntimeException("Usuario no encontrado con ID: " + id);
                 });
-        return usuarioMapper.toDTO(usuario); // 
+        return usuarioMapper.toDTO(usuario);
     }
 
     public UsuarioDto crear(UsuarioDto dto) {
@@ -53,17 +58,26 @@ public class UsuarioService {
         Rol rol = rolRepository.findById(dto.getRolId())
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + dto.getRolId()));
 
-        // ← CAMBIADO: el mapper construye la entidad base
         Usuario usuario = usuarioMapper.toEntity(dto);
-        usuario.setPassword(dto.getPassword()); 
+        usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
         usuario.setRol(rol);
 
         Usuario guardado = usuarioRepository.save(usuario);
         log.info("Usuario creado exitosamente con ID: {}", guardado.getId());
-        return usuarioMapper.toDTO(guardado); // 
+
+        try {
+            notificacionClient.enviarNotificacion(new NotificacionDto(
+                guardado.getId(),
+                "REGISTRO",
+                "Bienvenido al festival, " + guardado.getNombre() + "!"
+            ));
+        } catch (Exception e) {
+            log.warn("No se pudo enviar notificacion: {}", e.getMessage());
+        }
+
+        return usuarioMapper.toDTO(guardado);
     }
 
-    
     public UsuarioDto actualizar(Long id, UsuarioDto dto) {
         log.info("Actualizando usuario con ID: {}", id);
 
@@ -73,14 +87,13 @@ public class UsuarioService {
         Rol rol = rolRepository.findById(dto.getRolId())
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + dto.getRolId()));
 
-        
         usuario.setNombre(dto.getNombre());
         usuario.setEmail(dto.getEmail());
         usuario.setRol(rol);
 
         Usuario actualizado = usuarioRepository.save(usuario);
         log.info("Usuario actualizado: {}", actualizado.getId());
-        return usuarioMapper.toDTO(actualizado); // ← CAMBIADO
+        return usuarioMapper.toDTO(actualizado);
     }
 
     public void desactivar(Long id) {
@@ -90,6 +103,15 @@ public class UsuarioService {
         usuario.setActivo(false);
         usuarioRepository.save(usuario);
         log.info("Usuario desactivado: {}", id);
-    }
 
+        try {
+            notificacionClient.enviarNotificacion(new NotificacionDto(
+                id,
+                "DESACTIVACION",
+                "Tu cuenta ha sido desactivada."
+            ));
+        } catch (Exception e) {
+            log.warn("No se pudo enviar notificacion de desactivacion: {}", e.getMessage());
+        }
+    }
 }

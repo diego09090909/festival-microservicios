@@ -6,14 +6,14 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class TokenResponseDTO {
+public class TokenResponseDto {
 
     private String token;
     private String tipo = "Bearer";
     private String email;
     private String rol;
 
-    public TokenResponseDTO(String token, String email, String rol) {
+    public TokenResponseDto(String token, String email, String rol) {
         this.token = token;
         this.email = email;
         this.rol = rol;

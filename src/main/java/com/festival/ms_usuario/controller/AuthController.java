@@ -1,7 +1,7 @@
 package com.festival.ms_usuario.controller;
 
-import com.festival.ms_usuario.dto.LoginDTO;
-import com.festival.ms_usuario.dto.TokenResponseDTO;
+import com.festival.ms_usuario.dto.LoginDto;
+import com.festival.ms_usuario.dto.TokenResponseDto;
 import com.festival.ms_usuario.dto.UsuarioDto;
 import com.festival.ms_usuario.model.Rol;
 import com.festival.ms_usuario.model.Usuario;
@@ -20,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -34,26 +33,25 @@ public class AuthController {
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
 
-
     @PostMapping("/login")
-    public ResponseEntity<TokenResponseDTO> login(@Valid @RequestBody LoginDTO dto) {
+    public ResponseEntity<TokenResponseDto> login(@Valid @RequestBody LoginDto dto) {
         log.info("Intento de login: {}", dto.getEmail());
 
         Authentication auth = authManager.authenticate(
-        new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
+            new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
         );
 
-            Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
+        Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-            String token = jwtUtil.generarToken(
+        String token = jwtUtil.generarToken(
             usuario.getEmail(),
             usuario.getRol().getNombre()
         );
 
-            log.info("Login exitoso para: {}", dto.getEmail());
-            return ResponseEntity.ok(
-            new TokenResponseDTO(token, usuario.getEmail(), usuario.getRol().getNombre())
+        log.info("Login exitoso para: {}", dto.getEmail());
+        return ResponseEntity.ok(
+            new TokenResponseDto(token, usuario.getEmail(), usuario.getRol().getNombre())
         );
     }
 
@@ -61,12 +59,11 @@ public class AuthController {
     public ResponseEntity<UsuarioDto> registro(@Valid @RequestBody UsuarioDto dto) {
         log.info("Registro de nuevo usuario: {}", dto.getEmail());
 
-    // existsByEmail devuelve boolean directamente
-            if (usuarioRepository.existsByEmail(dto.getEmail())) {
+        if (usuarioRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("El email ya esta registrado");
         }
 
-            Rol rol = rolRepository.findById(dto.getRolId())
+        Rol rol = rolRepository.findById(dto.getRolId())
             .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
 
         Usuario usuario = new Usuario();

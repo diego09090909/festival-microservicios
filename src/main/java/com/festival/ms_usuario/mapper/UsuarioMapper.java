@@ -23,7 +23,6 @@ public class UsuarioMapper {
         usuario.setNombre(dto.getNombre());
         usuario.setEmail(dto.getEmail());
         usuario.setActivo(true);
-        // password se encripta en el Service con BCrypt, no aquí
         return usuario;
     }
 }
