@@ -10,7 +10,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -20,24 +19,35 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http
             .csrf(csrf -> csrf.disable())
-            .sessionManagement(sess ->
-                sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.GET, "/api/eventos/publicados").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/eventos/*/publicado").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/eventos/*").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/eventos").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/eventos/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PATCH, "/api/eventos/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/eventos/**").authenticated()
-                .anyRequest().authenticated()
+            .sessionManagement(sess ->
+                sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
 
-            .addFilterBefore(jwtAuthFilter,
-                UsernamePasswordAuthenticationFilter.class);
+            .authorizeHttpRequests(auth -> auth
+
+                // Swagger
+                .requestMatchers(
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**"
+                ).permitAll()
+
+                // EVENTOS
+                .requestMatchers(HttpMethod.GET, "/api/eventos/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/eventos").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/eventos/**").permitAll()
+                .requestMatchers(HttpMethod.PATCH, "/api/eventos/**").permitAll()
+
+                .anyRequest().permitAll()
+            )
+
+            .addFilterBefore(
+                    jwtAuthFilter,
+                    UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }
