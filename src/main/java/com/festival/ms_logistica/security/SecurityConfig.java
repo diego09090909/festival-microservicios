@@ -24,15 +24,23 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // Swagger sin autenticación
+                .requestMatchers(
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**",
+                    "/v3/api-docs"
+                ).permitAll()
+
                 // 1. Reglas específicas para modificaciones (POST, PUT, DELETE) -> Solo ADMIN
                 .requestMatchers(HttpMethod.POST, "/api/zonas/**", "/api/escenarios/**", "/api/asignaciones/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/zonas/**", "/api/escenarios/**", "/api/asignaciones/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/zonas/**", "/api/escenarios/**", "/api/asignaciones/**").hasRole("ADMIN")
-                
+
                 // 2. Regla general para consultas (GET) en cualquier ruta bajo /api/ -> ADMIN y STAFF
                 .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("ADMIN", "STAFF")
-                
-                // 3. Cualquier otra petición (por si tienes rutas fuera de /api/ o métodos no cubiertos)
+
+                // 3. Cualquier otra petición
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

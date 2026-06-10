@@ -14,7 +14,7 @@ import com.festival.ms_logistica.mapper.EscenarioMapper;
 import com.festival.ms_logistica.model.Escenario;
 import com.festival.ms_logistica.repository.EscenarioRepository;
 
-import feign.FeignException;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
