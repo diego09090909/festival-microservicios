@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 
 
 
@@ -43,6 +44,17 @@ private final AsignacionStaffService asignacionStaffService;
         return new ResponseEntity<>(asignacion, HttpStatus.CREATED);
     }
     
+    @Operation(summary = "Actualizar asignación de staff")
+    @PutMapping("/{usuarioId}")
+    public ResponseEntity<AsignacionStaffDTO> actualizarStaff(@PathVariable Long usuarioId, @Valid @RequestBody AsignacionStaffDTO dto) {
+
+            AsignacionStaffDTO asignacionActualizada = 
+            asignacionStaffService.actualizarAsignacion(usuarioId, dto);
+
+            return new ResponseEntity<>(asignacionActualizada, HttpStatus.OK);
+    }
+
+
     @Operation(summary = "Listar staff por zona")
     @GetMapping("/staffZona/{zonaId}")
     public ResponseEntity<List<AsignacionStaffDTO>> listarStaffPorZona(@PathVariable long zonaId){

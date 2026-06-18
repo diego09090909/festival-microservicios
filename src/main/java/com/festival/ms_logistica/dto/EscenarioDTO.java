@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EscenarioDTO {
 
+    private Long id;
+
     @NotBlank(message = "Es obligatorio ingresar un nombre")
     private String nombre;
     

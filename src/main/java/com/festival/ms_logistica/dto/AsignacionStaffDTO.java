@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AsignacionStaffDTO {
 
+    private Long id;
+
     @NotNull(message = "El ID del usuario es obligatorio")
     private Long usuarioId;
 
