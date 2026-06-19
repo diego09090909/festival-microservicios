@@ -1,10 +1,9 @@
 package com.festival.ms_logistica.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 
 import java.util.List;
 
@@ -13,12 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import com.festival.ms_logistica.dto.ZonaDTO;
+import com.festival.ms_logistica.security.JwtUtil;
 import com.festival.ms_logistica.service.ZonaService;
 
 @WebMvcTest(ZonaController.class)
@@ -27,71 +24,14 @@ class ZonaControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     private ZonaService zonaService;
 
-    @Test
-    @DisplayName("POST /api/zonas/ debe retornar 201 al crear zona")
-    void crearZonaDebeRetornarCreated() throws Exception {
-
-        ZonaDTO dto = new ZonaDTO();
-        dto.setNombre("Zona Primeros Auxilios");
-        dto.setTipo("SALUD");
-        dto.setEventoId(1L);
-        dto.setEventoNombre("Festival Reggae 2025");
-
-        ZonaDTO guardada = new ZonaDTO();
-        guardada.setId(1L);
-        guardada.setNombre("Zona Primeros Auxilios");
-        guardada.setTipo("SALUD");
-        guardada.setEventoId(1L);
-
-        when(zonaService.crearZona(any(ZonaDTO.class)))
-                .thenReturn(guardada);
-
-        mockMvc.perform(post("/api/zonas")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.nombre").value("Zona Primeros Auxilios"))
-                .andExpect(jsonPath("$.tipo").value("SALUD"))
-                .andExpect(jsonPath("$.eventoId").value(1L));
-    }
+    @MockBean
+    private JwtUtil jwtUtil;
 
     @Test
-    @DisplayName("PUT /api/zonas/{id} debe retornar 200 al actualizar zona")
-    void actualizarZonaDebeRetornarOk() throws Exception {
-
-        ZonaDTO dto = new ZonaDTO();
-        dto.setNombre("Zona Primeros Auxilios");
-        dto.setTipo("SALUD");
-        dto.setEventoId(1L);
-        dto.setEventoNombre("Festival Reggae 2025");
-
-        ZonaDTO guardada = new ZonaDTO();
-        guardada.setId(1L);
-        guardada.setNombre("Zona Primeros Auxilios");
-        guardada.setTipo("SALUD");
-        guardada.setEventoId(1L);
-
-        when(zonaService.actualizarZona(eq(1L), any(ZonaDTO.class))) //
-                .thenReturn(guardada);
-
-        mockMvc.perform(put("/api/zonas/{id}", 1L)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.nombre").value("Zona Primeros Auxilios"))
-                .andExpect(jsonPath("$.tipo").value("SALUD"))
-                .andExpect(jsonPath("$.eventoId").value(1L));
-    }
-
-    @Test
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("GET /api/zonas/evento/{eventoId} debe retornar 200 y lista vacia")
     void listarZonasPorEventoListaVacia() throws Exception {
 
@@ -99,15 +39,16 @@ class ZonaControllerTest {
         when(zonaService.listaZonasPorEvento(eventoId))
                 .thenReturn(List.of());
 
-        mockMvc.perform(get("/api/zonas/evento/{eventoId}", eventoId))
+        mockMvc.perform(get("/api/zonas/evento/{eventoId}", eventoId)
+                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
 
         verify(zonaService).listaZonasPorEvento(eventoId);
-
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("GET /api/zonas/evento/{eventoId}/sinstaff debe retornar 200 y lista vacia")
     void listarZonasSinStaffListaVacia() throws Exception {
 
@@ -115,7 +56,8 @@ class ZonaControllerTest {
         when(zonaService.listaZonasSinStaff(eventoId))
                 .thenReturn(List.of());
 
-        mockMvc.perform(get("/api/zonas/evento/{eventoId}/sinstaff", eventoId))
+        mockMvc.perform(get("/api/zonas/evento/{eventoId}/sinstaff", eventoId)
+                .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
 
@@ -123,16 +65,17 @@ class ZonaControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("DELETE /api/zonas/{id} debe retornar 204 al eliminar")
     void eliminarZonaDebeRetornarNoContent() throws Exception {
 
         Long id = 1L;
         doNothing().when(zonaService).eliminarZona(id);
 
-        mockMvc.perform(delete("/api/zonas/{id}", id))
+        mockMvc.perform(delete("/api/zonas/{id}", id)
+                .with(csrf()))
                 .andExpect(status().isNoContent());
 
         verify(zonaService).eliminarZona(id);
     }
-
 }

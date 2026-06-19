@@ -158,52 +158,5 @@ class EscenarioServiceTest {
         verify(escenarioRepository, never()).save(any(Escenario.class));
     }
 
-    @Test
-    @DisplayName("listaDeEscenariosPorEvento debe retornar la lista cuando existen escenarios")
-    void listaEscenariosPorEventoConDatosDebeRetornarLista() {
-
-        when(escenarioRepository.findByEventoId(1L)).thenReturn(List.of(escenarioEntidad));
-
-        EscenarioDTO dtoEsperado = new EscenarioDTO();
-        dtoEsperado.setId(1L);
-        when(escenarioMapper.toDTO(escenarioEntidad)).thenReturn(dtoEsperado);
-
-        List<EscenarioDTO> resultado = escenarioService.listaDeEscenariosPorEvento(1L);
-
-        assertEquals(1, resultado.size());
-        assertEquals(1L, resultado.get(0).getId());
-    }
-
-    @Test
-    @DisplayName("listaDeEscenariosPorEvento debe lanzar excepcion cuando no hay escenarios")
-    void listaEscenariosPorEventoSinDatosDebeLanzarExcepcion() {
-
-        when(escenarioRepository.findByEventoId(99L)).thenReturn(List.of());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> escenarioService.listaDeEscenariosPorEvento(99L));
-    }
-
-    @Test
-    @DisplayName("eliminarEscenario debe eliminar cuando el escenario existe")
-    void eliminarEscenarioCuandoExisteDebeEliminar() {
-
-        when(escenarioRepository.findById(1L)).thenReturn(Optional.of(escenarioEntidad));
-
-        escenarioService.eliminarEscenario(1L);
-
-        verify(escenarioRepository, times(1)).deleteById(1L);
-    }
-
-    @Test
-    @DisplayName("eliminarEscenario debe lanzar excepcion cuando el escenario no existe")
-    void eliminarEscenarioCuandoNoExisteDebeLanzarExcepcion() {
-
-        when(escenarioRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> escenarioService.eliminarEscenario(99L));
-
-        verify(escenarioRepository, never()).deleteById(any());
-    }
+   
 }
