@@ -2,7 +2,7 @@ MS-Lineup
 Integrantes del equipo
 Diego Jimenez
 
-Kevin Gonzales
+Kevin Gonzalez
 
 Jose Sanchez
 

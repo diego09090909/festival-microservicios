@@ -25,6 +25,10 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
 
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/swagger-ui.html").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll()
+
                 // Solo ADMIN puede crear artistas
                 .requestMatchers(HttpMethod.POST, "/api/artistas")
                     .hasRole("ADMIN")
