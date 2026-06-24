@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.festival.ms_tickets.controller.TicketControllerTest
+-------------------------------------------------------------------------------
+Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.379 s -- in com.festival.ms_tickets.controller.TicketControllerTest

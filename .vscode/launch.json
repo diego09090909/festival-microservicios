@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-MsTicketsApplication<ms-tickets>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.festival.ms_tickets.MsTicketsApplication",
+            "projectName": "ms-tickets",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
