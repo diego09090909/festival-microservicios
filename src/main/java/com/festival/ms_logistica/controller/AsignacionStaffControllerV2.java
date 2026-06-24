@@ -1,4 +1,4 @@
-package com.festival.ms_logistica.controller.v2;
+package com.festival.ms_logistica.controller;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.festival.ms_logistica.assembler.AsignacionStaffAssembler;
 import com.festival.ms_logistica.dto.AsignacionStaffDTO;
+import com.festival.ms_logistica.dto.AsignacionStaffRequestDTO;
 import com.festival.ms_logistica.service.AsignacionStaffService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +34,7 @@ public class AsignacionStaffControllerV2 {
     @PostMapping("/{usuarioId}")
     public ResponseEntity<EntityModel<AsignacionStaffDTO>> asignacion(
             @PathVariable Long usuarioId,
-            @Valid @RequestBody AsignacionStaffDTO dto) {
+            @Valid @RequestBody AsignacionStaffRequestDTO dto) { // <-- CAMBIO: era AsignacionStaffDTO, ahora AsignacionStaffRequestDTO
         AsignacionStaffDTO asignacion = asignacionStaffService.asignarStaff(usuarioId, dto);
         return new ResponseEntity<>(assembler.toModel(asignacion), HttpStatus.CREATED);
     }
@@ -42,10 +43,10 @@ public class AsignacionStaffControllerV2 {
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<AsignacionStaffDTO>> actualizarAsignacion(
             @PathVariable Long id,
-            @Valid @RequestBody AsignacionStaffDTO dto) {
+            @Valid @RequestBody AsignacionStaffDTO dto) { // <-- SIN CAMBIO: lo dejamos como estaba, no lo tocamos todavía
         AsignacionStaffDTO actualizada = asignacionStaffService.actualizarAsignacion(id, dto);
         return new ResponseEntity<>(assembler.toModel(actualizada), HttpStatus.OK);
-}
+    }
 
     @Operation(summary = "Listar staff por zona")
     @GetMapping("/staffZona/{zonaId}")
@@ -67,7 +68,7 @@ public class AsignacionStaffControllerV2 {
     @GetMapping("/staffEvento/{eventoId}")
     public ResponseEntity<CollectionModel<EntityModel<AsignacionStaffDTO>>> listarStaffPorEvento(
             @PathVariable long eventoId) {
-        List<EntityModel<AsignacionStaffDTO>> asignaciones = asignacionStaffService
+        List<EntityModel<AsignacionStaffDTO>> asignaciones = asignacionStaffService // <-- CORREGIDO: estaba mal puesto AsignacionStaffRequestDTO, vuelve a ser AsignacionStaffDTO
             .listaStaffPorEvento(eventoId)
             .stream()
             .map(assembler::toModel)

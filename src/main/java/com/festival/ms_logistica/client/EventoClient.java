@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.festival.ms_logistica.dto.EventoDTO;
 
 
-@FeignClient(name = "ms-eventos", url = "http://localhost:8802")
+@FeignClient(name = "ms-eventos", url = "${ms.eventos.url}")
 public interface EventoClient {
     
     @GetMapping("/api/eventos/{id}")

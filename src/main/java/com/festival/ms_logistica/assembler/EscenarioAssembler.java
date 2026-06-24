@@ -6,20 +6,22 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 
-import com.festival.ms_logistica.controller.v2.EscenarioControllerV2;
+import com.festival.ms_logistica.controller.EscenarioControllerV2;
 import com.festival.ms_logistica.dto.EscenarioDTO;
 
 @Component
-public class EscenarioAssembler
-    implements RepresentationModelAssembler<EscenarioDTO, EntityModel<EscenarioDTO>> {
+public class EscenarioAssembler implements RepresentationModelAssembler<EscenarioDTO, EntityModel<EscenarioDTO>> {
 
     @Override
     public EntityModel<EscenarioDTO> toModel(EscenarioDTO dto) {
         return EntityModel.of(dto,
+            
             linkTo(methodOn(EscenarioControllerV2.class)
-                .ListarEscenariosDelEvento(dto.getEventoId())).withSelfRel(),
+                .actualizarEscenario(dto.getId(), dto)).withSelfRel(),
+            
+            
             linkTo(methodOn(EscenarioControllerV2.class)
-                .ListarEscenariosDelEvento(dto.getEventoId())).withRel("escenariosPorEvento")
+                .actualizarEscenario(dto.getId(), dto)).withRel("actualizar")
         );
     }
 }

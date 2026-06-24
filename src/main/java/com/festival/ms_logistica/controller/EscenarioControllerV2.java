@@ -1,4 +1,4 @@
-package com.festival.ms_logistica.controller.v2;
+package com.festival.ms_logistica.controller;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.festival.ms_logistica.assembler.EscenarioAssembler;
 import com.festival.ms_logistica.dto.EscenarioDTO;
+import com.festival.ms_logistica.dto.EscenarioRequestDTO; // <-- IMPORT AGREGADO
 import com.festival.ms_logistica.service.EscenarioService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +33,7 @@ public class EscenarioControllerV2 {
     @Operation(summary = "Crear un nuevo escenario")
     @PostMapping
     public ResponseEntity<EntityModel<EscenarioDTO>> crearEscenario(
-            @Valid @RequestBody EscenarioDTO dto) {
+            @Valid @RequestBody EscenarioRequestDTO dto) { // <-- Ahora se reconoce perfectamente gracias al import
         EscenarioDTO escenario = escenarioService.crearEscenario(dto);
         return new ResponseEntity<>(assembler.toModel(escenario), HttpStatus.CREATED);
     }
@@ -59,7 +60,7 @@ public class EscenarioControllerV2 {
             linkTo(methodOn(EscenarioControllerV2.class)
                 .ListarEscenariosDelEvento(eventoId)).withSelfRel(),
             linkTo(methodOn(EscenarioControllerV2.class)
-                .crearEscenario(null)).withRel("crearEscenario")
+                .crearEscenario(new EscenarioRequestDTO())).withRel("crearEscenario") // <-- CORREGIDO: instanciado para evitar NullPointerException con @Valid
         ));
     }
 

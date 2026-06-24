@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.festival.ms_logistica.client.NotificacioneClient;
 import com.festival.ms_logistica.client.UsuarioClient;
 import com.festival.ms_logistica.dto.AsignacionStaffDTO;
+import com.festival.ms_logistica.dto.AsignacionStaffRequestDTO; // <-- NUEVO IMPORT
 import com.festival.ms_logistica.dto.NotificacionDTO;
 import com.festival.ms_logistica.dto.UsuarioDTO;
 import com.festival.ms_logistica.exception.ResourceNotFoundException;
@@ -30,7 +31,7 @@ public class AsignacionStaffService {
     private final ZonaRepository zonaRepository;
     private final NotificacioneClient notificacioneClient;
 
-    public AsignacionStaffDTO asignarStaff(Long usuarioId, AsignacionStaffDTO dto) {
+    public AsignacionStaffDTO asignarStaff(Long usuarioId, AsignacionStaffRequestDTO dto) { 
         log.info("Asignando labor del staff {}", dto);
 
         try {

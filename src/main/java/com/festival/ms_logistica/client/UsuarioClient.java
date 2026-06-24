@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.festival.ms_logistica.dto.UsuarioDTO;
 
-@FeignClient(name = "ms-usuarios", url = "http://localhost:8801")
+@FeignClient(name = "ms-usuarios", url = "${ms.usuarios.url}")
 public interface UsuarioClient {
     
     @GetMapping("/api/usuarios/{id}")

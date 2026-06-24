@@ -1,4 +1,4 @@
-package com.festival.ms_logistica.controller.v2;
+package com.festival.ms_logistica.controller;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.festival.ms_logistica.assembler.ZonaAssembler;
 import com.festival.ms_logistica.dto.ZonaDTO;
+import com.festival.ms_logistica.dto.ZonaRequestDTO;
 import com.festival.ms_logistica.service.ZonaService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +33,8 @@ public class ZonaControllerV2 {
     @Operation(summary = "Crear una nueva zona")
     @PostMapping
     public ResponseEntity<EntityModel<ZonaDTO>> crearZona(
-            @Valid @RequestBody ZonaDTO dto) {
+            @Valid @RequestBody ZonaRequestDTO dto) {
+        // Llama a la sobrecarga del servicio pasándole el RequestDTO ligero
         ZonaDTO zona = zonaService.crearZona(dto);
         return new ResponseEntity<>(assembler.toModel(zona), HttpStatus.CREATED);
     }
@@ -47,37 +49,37 @@ public class ZonaControllerV2 {
 
     @Operation(summary = "Listar zonas por evento")
     @GetMapping("/evento/{eventoId}")
-    public ResponseEntity<CollectionModel<EntityModel<ZonaDTO>>> listarZonasDelEvento(
+    public ResponseEntity<CollectionModel<EntityModel<ZonaDTO>>> listarZonasPorEvento(
             @PathVariable Long eventoId) {
         List<EntityModel<ZonaDTO>> zonas = zonaService
-            .listaZonasPorEvento(eventoId)
-            .stream()
-            .map(assembler::toModel)
-            .collect(Collectors.toList());
+                .listaZonasPorEvento(eventoId)
+                .stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(CollectionModel.of(zonas,
-            linkTo(methodOn(ZonaControllerV2.class)
-                .listarZonasDelEvento(eventoId)).withSelfRel()));
+                linkTo(methodOn(ZonaControllerV2.class).listarZonasPorEvento(eventoId)).withSelfRel(),
+                linkTo(methodOn(ZonaControllerV2.class).crearZona(new ZonaRequestDTO())).withRel("crearZona")));
     }
 
-    @Operation(summary = "Listar zonas sin staff por evento")
+    @Operation(summary = "Listar zonas sin staff asignado por evento")
     @GetMapping("/evento/{eventoId}/sinstaff")
     public ResponseEntity<CollectionModel<EntityModel<ZonaDTO>>> listarZonasSinStaff(
             @PathVariable Long eventoId) {
         List<EntityModel<ZonaDTO>> zonas = zonaService
-            .listaZonasSinStaff(eventoId)
-            .stream()
-            .map(assembler::toModel)
-            .collect(Collectors.toList());
+                .listaZonasSinStaff(eventoId)
+                .stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(CollectionModel.of(zonas,
-            linkTo(methodOn(ZonaControllerV2.class)
-                .listarZonasSinStaff(eventoId)).withSelfRel()));
+                linkTo(methodOn(ZonaControllerV2.class)
+                        .listarZonasSinStaff(eventoId)).withSelfRel()));
     }
 
     @Operation(summary = "Eliminar una zona")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarZona(@PathVariable Long id) {
         zonaService.eliminarZona(id);
         return ResponseEntity.noContent().build();
     }
