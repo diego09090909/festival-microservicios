@@ -34,16 +34,18 @@ public class Evento {
     @Column(nullable = false)
     private LocalDate fechaFin;
 
-    // Aforo maximo: regla de negocio critica para MS-Tickets
     @Column(nullable = false)
     private Integer aforoMaximo;
 
-    // Estado actual del evento (maquina de estados)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private EstadoEvento estado = EstadoEvento.BORRADOR;
 
-    // Fecha de creacion del registro
     @Column(nullable = false, updatable = false)
-    private LocalDateTime creadoEn = LocalDateTime.now();
+    private LocalDateTime creadoEn;
+
+    @PrePersist
+    protected void onCreate() {
+        this.creadoEn = LocalDateTime.now();
+    }
 }

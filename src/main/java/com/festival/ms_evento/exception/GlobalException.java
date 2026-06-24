@@ -17,6 +17,7 @@ public class GlobalException {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalException.class);
 
+    // 400 Errores de validación
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(
             MethodArgumentNotValidException ex) {
@@ -29,6 +30,16 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errores);
     }
 
+    // 404 Evento no encontrado
+    @ExceptionHandler(EventoNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleNotFound(EventoNotFoundException ex) {
+        log.warn("Evento no encontrado: {}", ex.getMessage());
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    // 400 Errores de negocio 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntime(RuntimeException ex) {
         log.error("Error de negocio: {}", ex.getMessage());
@@ -37,6 +48,7 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    // 500 Errores inesperados
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneral(Exception ex) {
         log.error("Error inesperado: {}", ex.getMessage());

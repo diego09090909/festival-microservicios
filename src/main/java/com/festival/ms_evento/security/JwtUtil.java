@@ -3,18 +3,20 @@ package com.festival.ms_evento.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
-
+import javax.crypto.SecretKey;
 
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "festival-secret-key-2024-muy-larga-para-cumplir-256bits";
+    // Secret leído desde application.properties — nunca hardcodeado en el código
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private Key getKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes());
+    private SecretKey getKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     public String extraerEmail(String token) {
@@ -33,12 +35,12 @@ public class JwtUtil {
             return false;
         }
     }
-    
+
     private Claims getClaims(String token) {
-    return Jwts.parser()
-            .verifyWith((javax.crypto.SecretKey) getKey())
-            .build()
-            .parseSignedClaims(token)
-            .getPayload();
+        return Jwts.parser()
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

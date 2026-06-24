@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class EventoMapper {
 
+    // Entidad → DTO (para respuestas)
     public EventoDto toDTO(Evento evento) {
         EventoDto dto = new EventoDto();
         dto.setId(evento.getId());
@@ -30,7 +31,16 @@ public class EventoMapper {
         evento.setFechaInicio(dto.getFechaInicio());
         evento.setFechaFin(dto.getFechaFin());
         evento.setAforoMaximo(dto.getAforoMaximo());
-        evento.setEstado(EstadoEvento.BORRADOR); // regla de negocio fija
+        evento.setEstado(EstadoEvento.BORRADOR);
         return evento;
+    }
+
+    public void updateEntity(Evento evento, EventoDto dto) {
+        evento.setNombre(dto.getNombre());
+        evento.setDescripcion(dto.getDescripcion());
+        evento.setUbicacion(dto.getUbicacion());
+        evento.setFechaInicio(dto.getFechaInicio());
+        evento.setFechaFin(dto.getFechaFin());
+        evento.setAforoMaximo(dto.getAforoMaximo());
     }
 }

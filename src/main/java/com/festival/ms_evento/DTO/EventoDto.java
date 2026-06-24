@@ -1,5 +1,6 @@
 package com.festival.ms_evento.DTO;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.festival.ms_evento.model.EstadoEvento;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -10,6 +11,8 @@ import java.time.LocalDateTime;
 @Data
 public class EventoDto {
 
+    // Solo de salida: el cliente no puede enviar el ID
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
     @NotBlank(message = "El nombre del evento es obligatorio")
@@ -33,8 +36,9 @@ public class EventoDto {
     @Max(value = 500000, message = "El aforo no puede superar 500000")
     private Integer aforoMaximo;
 
-
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private EstadoEvento estado;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime creadoEn;
 }

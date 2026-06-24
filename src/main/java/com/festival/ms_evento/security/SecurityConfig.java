@@ -10,7 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-// SecurityConfig de ms-eventos: protege endpoints segun el rol del JWT
+// SecurityConfig de ms-evento: protege endpoints según el rol del JWT
 // No necesita PasswordEncoder ni AuthenticationManager (no hace login)
 @Configuration
 @EnableWebSecurity
@@ -28,18 +28,21 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
 
-                // Consultas publicas: cualquiera puede ver eventos publicados
+                .requestMatchers(
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**"
+                ).permitAll()
+
                 .requestMatchers(HttpMethod.GET, "/api/eventos/publicados").permitAll()
 
-                // Endpoint para Feign (otros microservicios verifican estado)
                 .requestMatchers(HttpMethod.GET, "/api/eventos/*/publicado").permitAll()
 
-                // Solo ADMIN puede crear, editar o cambiar estado de eventos
                 .requestMatchers(HttpMethod.POST, "/api/eventos").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/eventos/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/api/eventos/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/eventos/**").hasRole("ADMIN")
 
-                // Ver detalle de cualquier evento requiere estar autenticado
                 .requestMatchers(HttpMethod.GET, "/api/eventos/**").authenticated()
 
                 .anyRequest().authenticated()
