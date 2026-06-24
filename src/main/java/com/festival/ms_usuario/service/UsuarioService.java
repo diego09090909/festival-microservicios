@@ -1,6 +1,8 @@
 package com.festival.ms_usuario.service;
 
+import com.festival.ms_usuario.client.EventoClient;
 import com.festival.ms_usuario.client.NotificacionClient;
+import com.festival.ms_usuario.dto.EventoDto;
 import com.festival.ms_usuario.dto.NotificacionDto;
 import com.festival.ms_usuario.dto.UsuarioDto;
 import com.festival.ms_usuario.mapper.UsuarioMapper;
@@ -28,6 +30,7 @@ public class UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
     private final NotificacionClient notificacionClient;
+    private final EventoClient eventoClient;
 
     public List<UsuarioDto> listarActivos() {
         log.info("Listando todos los usuarios activos");
@@ -65,6 +68,7 @@ public class UsuarioService {
         Usuario guardado = usuarioRepository.save(usuario);
         log.info("Usuario creado exitosamente con ID: {}", guardado.getId());
 
+        // Notificar al ms-notificaciones
         try {
             notificacionClient.enviarNotificacion(new NotificacionDto(
                 guardado.getId(),
@@ -72,7 +76,16 @@ public class UsuarioService {
                 "Bienvenido al festival, " + guardado.getNombre() + "!"
             ));
         } catch (Exception e) {
-            log.warn("No se pudo enviar notificacion: {}", e.getMessage());
+            log.warn("No se pudo enviar notificacion de registro: {}", e.getMessage());
+        }
+
+        // Consultar eventos publicados desde ms-evento para logging y trazabilidad
+        try {
+            List<EventoDto> eventosDisponibles = eventoClient.obtenerEventosPublicados();
+            log.info("Usuario {} registrado. Eventos publicados disponibles: {}",
+                guardado.getEmail(), eventosDisponibles.size());
+        } catch (Exception e) {
+            log.warn("No se pudo consultar eventos disponibles: {}", e.getMessage());
         }
 
         return usuarioMapper.toDTO(guardado);
@@ -104,6 +117,7 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
         log.info("Usuario desactivado: {}", id);
 
+        // Notificar al ms-notificaciones
         try {
             notificacionClient.enviarNotificacion(new NotificacionDto(
                 id,
@@ -113,5 +127,24 @@ public class UsuarioService {
         } catch (Exception e) {
             log.warn("No se pudo enviar notificacion de desactivacion: {}", e.getMessage());
         }
+    }
+
+    /**
+     * Verifica si un evento está publicado consultando ms-evento.
+     * Útil para validar disponibilidad antes de operaciones relacionadas.
+     */
+    public boolean verificarEventoDisponible(Long eventoId) {
+        log.info("Verificando disponibilidad del evento: {}", eventoId);
+        boolean disponible = eventoClient.isEventoPublicado(eventoId);
+        log.info("Evento {}: disponible={}", eventoId, disponible);
+        return disponible;
+    }
+
+    /**
+     * Retorna los eventos publicados disponibles desde ms-evento.
+     */
+    public List<EventoDto> obtenerEventosDisponibles() {
+        log.info("Consultando eventos disponibles desde ms-evento");
+        return eventoClient.obtenerEventosPublicados();
     }
 }
